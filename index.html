@@ -832,6 +832,379 @@
   .activity-info strong { font-size: 13px; display: block; }
   .activity-info span { font-size: 11px; color: var(--text-dim); }
   .activity-time { margin-left: auto; font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+
+  /* ============================================
+   GHANA TOURISM AUTHORITY — MOBILE CSS
+   Paste at the bottom of your <style> block
+   Covers: max-width 768px and max-width 480px
+   ============================================ */
+
+/* ---- MOBILE MENU TOGGLE BUTTON ---- */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 52px;
+  height: 52px;
+  background: var(--gold);
+  color: var(--forest);
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: 0 4px 20px rgba(200,150,12,0.5);
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  z-index: 150;
+  backdrop-filter: blur(3px);
+}
+
+/* ============================================
+   TABLET + MOBILE  (≤ 768px)
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* -- Sidebar slides off-screen by default -- */
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 200;
+    width: 260px;
+    box-shadow: 4px 0 30px rgba(0,0,0,0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .mobile-overlay.open {
+    display: block;
+  }
+
+  /* -- Main fills full width -- */
+  .main {
+    margin-left: 0;
+  }
+
+  /* -- Topbar -- */
+  .topbar {
+    padding: 0 16px;
+    height: 56px;
+  }
+
+  .topbar-left h2 {
+    font-size: 16px;
+  }
+
+  .topbar-left p {
+    display: none;
+  }
+
+  /* Hide "New Payment" label text on topbar, keep icon */
+  .topbar-actions .btn-primary span {
+    display: none;
+  }
+
+  .topbar-actions {
+    gap: 6px;
+  }
+
+  /* -- Mobile menu button visible -- */
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  /* -- Page padding -- */
+  .page {
+    padding: 16px;
+  }
+
+  /* -- GTA Banner -- */
+  .gta-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 18px 16px;
+    gap: 12px;
+  }
+
+  .gta-banner-badge {
+    margin-left: 0;
+  }
+
+  .gta-banner-text h3 {
+    font-size: 16px;
+  }
+
+  .gta-banner-text p {
+    font-size: 12px;
+  }
+
+  /* -- Stats grid: 2 columns on tablet -- */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+
+  /* -- Grid layouts collapse to single column -- */
+  .grid-2,
+  .grid-3-1 {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  /* -- Chart bars slightly shorter -- */
+  .chart-bars {
+    height: 110px;
+  }
+
+  /* -- Tables: horizontal scroll -- */
+  .card-body {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 560px;
+  }
+
+  /* -- Payment flow steps — shrink labels -- */
+  .flow-steps {
+    margin-bottom: 20px;
+  }
+
+  .step-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .step-label {
+    font-size: 9px;
+  }
+
+  /* -- Attraction grid: 2 columns -- */
+  .attraction-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* -- Payment methods: 1 row of 3 still works -- */
+  .payment-methods {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .pay-method {
+    padding: 10px 6px;
+  }
+
+  .pay-method i {
+    font-size: 18px;
+  }
+
+  /* -- Form grid: single column -- */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* -- Modal full screen -- */
+  .modal-overlay {
+    align-items: flex-end;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .modal-header {
+    padding: 16px 18px;
+  }
+
+  .modal-body {
+    padding: 16px 18px;
+  }
+
+  /* -- Receipt max width -- */
+  .receipt {
+    max-width: 100%;
+  }
+
+  /* -- Search bar stack -- */
+  .search-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .search-bar .form-input {
+    width: 100%;
+    flex: unset;
+  }
+
+  .search-input-wrap {
+    width: 100%;
+  }
+
+  /* -- Donut container center -- */
+  .donut-container {
+    margin-bottom: 20px;
+  }
+
+  /* -- PIN inputs slightly smaller -- */
+  .pin-input {
+    width: 44px;
+    height: 52px;
+    font-size: 20px;
+  }
+
+  /* -- Activity items -- */
+  .activity-time {
+    display: none;
+  }
+
+  /* -- Topbar new payment button — keep icon + text on tablet -- */
+  .topbar .btn-primary {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   SMALL PHONES  (≤ 480px)
+   ============================================ */
+@media (max-width: 480px) {
+
+  /* -- Stats: stack to single column -- */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* -- Topbar new payment: icon only -- */
+  .topbar .btn-primary {
+    padding: 8px 10px;
+  }
+
+  .topbar .btn-primary i + * {
+    display: none;
+  }
+
+  /* -- GTA banner tighter -- */
+  .gta-banner img {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* -- Attraction grid: single column -- */
+  .attraction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .attraction-card img {
+    height: 90px;
+  }
+
+  /* -- Payment methods: stack 2 + 1 -- */
+  .payment-methods {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* -- Flow steps — hide labels, just show circles -- */
+  .step-label {
+    display: none;
+  }
+
+  .flow-step::after {
+    top: 14px;
+  }
+
+  /* -- Card header — stack title + actions -- */
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+
+  /* -- Modal header -- */
+  .modal-title {
+    font-size: 16px;
+  }
+
+  /* -- Receipt font sizes -- */
+  .receipt-header h3 {
+    font-size: 15px;
+  }
+
+  .receipt-row {
+    font-size: 12px;
+  }
+
+  .receipt-row.total .value {
+    font-size: 16px;
+  }
+
+  /* -- PIN inputs on small screen -- */
+  .pin-inputs {
+    gap: 8px;
+  }
+
+  .pin-input {
+    width: 38px;
+    height: 46px;
+    font-size: 18px;
+    border-radius: 8px;
+  }
+
+  /* -- Topbar -- */
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .topbar-left h2 {
+    font-size: 14px;
+  }
+
+  /* -- Page padding -- */
+  .page {
+    padding: 12px;
+  }
+
+  /* -- Donut chart scale down -- */
+  .donut-container {
+    width: 120px;
+    height: 120px;
+  }
+
+  /* -- User card in sidebar footer -- */
+  .user-info span {
+    display: none;
+  }
+
+  /* -- Floating mobile menu button -- */
+  .mobile-menu-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    bottom: 16px;
+    right: 16px;
+  }
+}
 </style>
 </head>
 <body>
