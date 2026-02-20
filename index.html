@@ -2452,6 +2452,39 @@ renderChart();
 renderPayments();
 renderCustomers();
 renderReceipts();
+
+</script>
+<!-- Mobile Menu Toggle Button -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+  <i class="fas fa-bars" id="mobileMenuIcon"></i>
+</button>
+
+<!-- Mobile Overlay -->
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+<script>
+  function toggleMobileMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('mobileOverlay');
+    const icon = document.getElementById('mobileMenuIcon');
+    const isOpen = sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', !isOpen);
+    overlay.classList.toggle('open', !isOpen);
+    icon.className = isOpen ? 'fas fa-bars' : 'fas fa-times';
+  }
+
+  function closeMobileMenu() {
+    document.querySelector('.sidebar').classList.remove('open');
+    document.getElementById('mobileOverlay').classList.remove('open');
+    document.getElementById('mobileMenuIcon').className = 'fas fa-bars';
+  }
+
+  // Close sidebar when a nav item is tapped on mobile
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) closeMobileMenu();
+    });
+  });
 </script>
 </body>
 </html>
