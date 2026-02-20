@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ghana Tourism Authority — Payment System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.1/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --gold: #C8960C;
+    --gold-light: #F5C842;
+    --gold-pale: #FFF8E1;
+    --forest: #1A4A2E;
+    --forest-mid: #2D7A4F;
+    --forest-light: #4CAF7D;
+    --red: #CC2929;
+    --bg: #0D1F12;
+    --surface: #142A1A;
+    --surface2: #1C3824;
+    --border: rgba(200,150,12,0.2);
+    --text: #F0EDE4;
+    --text-dim: #A09880;
+    --white: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .sidebar-logo img {
+    width: 48px; height: 48px;
+    border-radius: 10px;
+    object-fit: cover;
+  }
+
+  .logo-text { line-height: 1.2; }
+  .logo-text strong {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .logo-text span { font-size: 11px; color: var(--text-dim); }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+
+  .nav-section {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border-radius: 0;
+    font-size: 14px;
+    color: var(--text-dim);
+    transition: all 0.2s;
+    position: relative;
+    border-left: 3px solid transparent;
+    margin: 2px 0;
+  }
+
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active {
+    color: var(--gold);
+    background: rgba(200,150,12,0.08);
+    border-left-color: var(--gold);
+  }
+  .nav-item i { width: 20px; text-align: center; font-size: 15px; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .user-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: var(--surface2);
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .user-avatar {
+    width: 36px; height: 36px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; color: var(--forest);
+  }
+
+  .user-info strong { display: block; font-size: 13px; }
+  .user-info span { font-size: 11px; color: var(--text-dim); }
+
+  /* MAIN */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-left h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .topbar-left p { font-size: 12px; color: var(--text-dim); }
+
+  .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--forest);
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-dim);
+    padding: 9px 12px;
+  }
+  .btn-ghost:hover { color: var(--text); background: var(--surface2); }
+
+  /* PAGE CONTENT */
+  .page { display: none; padding: 32px; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--gold); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,150,12,0.15), transparent 70%);
+    transform: translate(20px, -20px);
+  }
+
+  .stat-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+
+  .stat-icon.gold { background: rgba(200,150,12,0.15); color: var(--gold); }
+  .stat-icon.green { background: rgba(76,175,125,0.15); color: var(--forest-light); }
+  .stat-icon.red { background: rgba(204,41,41,0.12); color: #E57373; }
+  .stat-icon.blue { background: rgba(100,149,237,0.15); color: #6495ED; }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .stat-label { font-size: 12px; color: var(--text-dim); }
+  .stat-change { font-size: 11px; margin-top: 8px; }
+  .stat-change.up { color: var(--forest-light); }
+  .stat-change.down { color: #E57373; }
+
+  /* GRID LAYOUT */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+  .grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .card-body { padding: 22px; }
+
+  /* CHART BARS */
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 140px;
+    padding: 10px 0;
+  }
+
+  .bar-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar {
+    width: 100%;
+    background: var(--gold);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    cursor: pointer;
+  }
+
+  .bar:hover { background: var(--gold-light); }
+  .bar::after {
+    content: attr(data-val);
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .bar-label { font-size: 10px; color: var(--text-dim); }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+  .data-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(200,150,12,0.08);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(200,150,12,0.04); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .status-badge.success { background: rgba(76,175,125,0.15); color: var(--forest-light); }
+  .status-badge.pending { background: rgba(200,150,12,0.15); color: var(--gold); }
+  .status-badge.failed { background: rgba(204,41,41,0.12); color: #E57373; }
+
+  /* PAYMENT FLOW */
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+  }
+
+  .flow-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step::after {
+    content: '';
+    position: absolute;
+    top: 18px;
+    right: -50%;
+    width: 100%;
+    height: 2px;
+    background: var(--surface2);
+    z-index: 0;
+  }
+
+  .flow-step:last-child::after { display: none; }
+
+  .step-circle {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 auto 8px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s;
+  }
+
+  .step-circle.done { background: var(--forest-light); color: #fff; }
+  .step-circle.active { background: var(--gold); color: var(--forest); box-shadow: 0 0 0 4px rgba(200,150,12,0.2); }
+  .step-circle.todo { background: var(--surface2); color: var(--text-dim); }
+
+  .step-label { font-size: 11px; color: var(--text-dim); }
+  .step-label.active { color: var(--gold); font-weight: 600; }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { margin-bottom: 16px; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .form-label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-input:focus, .form-select:focus { border-color: var(--gold); }
+  .form-select option { background: var(--surface); }
+
+  /* PAYMENT METHODS */
+  .payment-methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .pay-method {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pay-method:hover { border-color: var(--gold); }
+  .pay-method.selected { border-color: var(--gold); background: rgba(200,150,12,0.08); }
+  .pay-method i { font-size: 22px; color: var(--gold); display: block; margin-bottom: 6px; }
+  .pay-method span { font-size: 11px; color: var(--text-dim); }
+
+  /* RECEIPT */
+  .receipt {
+    background: #fff;
+    color: #1a1a1a;
+    border-radius: 14px;
+    max-width: 460px;
+    margin: 0 auto;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+
+  .receipt-header {
+    background: var(--forest);
+    color: #fff;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .receipt-header img {
+    width: 56px; height: 56px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    object-fit: contain;
+    background: white;
+    padding: 4px;
+  }
+
+  .receipt-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+
+  .receipt-header p { font-size: 11px; opacity: 0.7; }
+
+  .receipt-success {
+    background: #F0FBF5;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px dashed #ddd;
+  }
+
+  .receipt-success .check-icon {
+    width: 52px; height: 52px;
+    background: #2D7A4F;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px;
+    color: white;
+    font-size: 22px;
+  }
+
+  .receipt-success h4 { color: #2D7A4F; font-size: 16px; font-weight: 700; }
+  .receipt-success p { color: #666; font-size: 12px; margin-top: 2px; }
+
+  .receipt-body { padding: 20px 24px; }
+
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+  }
+
+  .receipt-row:last-child { border-bottom: none; }
+  .receipt-row .label { color: #666; }
+  .receipt-row .value { font-weight: 600; color: #1a1a1a; }
+  .receipt-row.total .value { font-size: 18px; color: #2D7A4F; font-family: 'Playfair Display', serif; }
+
+  .receipt-qr {
+    padding: 16px 24px 20px;
+    text-align: center;
+    border-top: 2px dashed #e0e0e0;
+  }
+
+  #qrcode { display: inline-block; margin-bottom: 8px; }
+  .receipt-qr p { font-size: 10px; color: #999; }
+
+  .receipt-footer {
+    background: #F5F5F5;
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 10px;
+    color: #999;
+  }
+
+  /* CUSTOMER TABLE */
+  .customer-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--forest);
+    background: var(--gold);
+  }
+
+  .customer-info { display: flex; align-items: center; gap: 10px; }
+
+  /* REVENUE CHART */
+  .donut-container { position: relative; width: 140px; height: 140px; margin: 0 auto; }
+  .donut-svg { transform: rotate(-90deg); }
+  .donut-center {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  .donut-center strong { display: block; font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
+  .donut-center span { font-size: 10px; color: var(--text-dim); }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* SEARCH / FILTER */
+  .search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .search-input-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 14px 10px 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+
+  .search-input:focus { border-color: var(--gold); }
+
+  /* MODAL overlay */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal-header {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 20px; }
+  .modal-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .modal-close:hover { color: var(--text); background: var(--border); }
+
+  .modal-body { padding: 26px; }
+
+  .step-panel { display: none; }
+  .step-panel.active { display: block; }
+
+  /* NOTIFICATION */
+  .notif-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    position: absolute;
+    top: 6px; right: 6px;
+  }
+
+  /* MINI CHART */
+  .sparkline { display: flex; align-items: flex-end; gap: 3px; height: 36px; }
+  .sparkline-bar {
+    flex: 1;
+    background: rgba(200,150,12,0.3);
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .sparkline-bar:hover { background: var(--gold); }
+
+  /* ATTRACTION CARDS */
+  .attraction-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .attraction-card {
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border: 2px solid transparent;
+  }
+
+  .attraction-card:hover { transform: translateY(-2px); }
+  .attraction-card.selected { border-color: var(--gold); }
+
+  .attraction-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .attraction-info {
+    padding: 8px 10px;
+    background: var(--surface2);
+  }
+
+  .attraction-info strong { display: block; font-size: 12px; }
+  .attraction-info span { font-size: 11px; color: var(--gold); }
+
+  /* PASSWORD INPUT */
+  .pin-inputs {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+
+  .pin-input {
+    width: 52px; height: 60px;
+    border-radius: 10px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .pin-input:focus { border-color: var(--gold); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 3px; }
+
+  /* Responsive notice */
+  .gta-banner {
+    background: linear-gradient(135deg, var(--forest) 0%, #0D3A1E 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gta-banner::before {
+    content: '';
+    position: absolute;
+    right: -40px; top: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(200,150,12,0.2), transparent 70%);
+    border-radius: 50%;
+  }
+
+  .gta-banner img { width: 60px; height: 60px; object-fit: contain; border-radius: 8px; background: white; padding: 4px; }
+  .gta-banner-text h3 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
+  .gta-banner-text p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+  .gta-banner-badge {
+    margin-left: auto;
+    padding: 6px 14px;
+    background: rgba(200,150,12,0.15);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 1;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(200,150,12,0.06);
+  }
+
+  .activity-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .activity-icon.green { background: rgba(76,175,125,0.15); color: var(--forest-light); }
+  .activity-icon.gold { background: rgba(200,150,12,0.15); color: var(--gold); }
+  .activity-icon.red { background: rgba(204,41,41,0.12); color: #E57373; }
+
+  .activity-info strong { font-size: 13px; display: block; }
+  .activity-info span { font-size: 11px; color: var(--text-dim); }
+  .activity-time { margin-left: auto; font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Flag_of_Ghana.svg" alt="GTA" onerror="this.src='https://via.placeholder.com/48x48/1A4A2E/C8960C?text=GTA'">
+    <div class="logo-text">
+      <strong>Ghana Tourism</strong>
+      <span>Authority · PaySystem</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" onclick="showPage('dashboard', this)">
+      <i class="fas fa-th-large"></i> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('payments', this)">
+      <i class="fas fa-credit-card"></i> Payments
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="showPage('customers', this)">
+      <i class="fas fa-users"></i> Customers
+    </div>
+    <div class="nav-item" onclick="showPage('revenue', this)">
+      <i class="fas fa-chart-line"></i> Revenue
+    </div>
+
+    <div class="nav-section">Tools</div>
+    <div class="nav-item" onclick="showPage('receipts', this)">
+      <i class="fas fa-receipt"></i> Receipts
+    </div>
+    <div class="nav-item" onclick="openPaymentModal()">
+      <i class="fas fa-plus-circle"></i> New Payment
+    </div>
+    <div class="nav-item" onclick="showPage('reports', this)">
+      <i class="fas fa-file-alt"></i> Reports
+    </div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="showPage('settings', this)">
+      <i class="fas fa-cog"></i> Settings
+    </div>
+    <div class="nav-item" onclick="showPage('security', this)">
+      <i class="fas fa-shield-alt"></i> Security & PIN
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">AO</div>
+      <div class="user-info">
+        <strong>Ama Osei</strong>
+        <span>Admin · GTA</span>
+      </div>
+      <i class="fas fa-chevron-right" style="margin-left:auto;color:var(--text-dim);font-size:11px;"></i>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h2 id="page-title">Dashboard</h2>
+      <p id="page-sub">Welcome back, Ama · Thursday 19 February, 2026</p>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" style="position:relative;" onclick="showNotifications()">
+        <i class="fas fa-bell"></i>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="btn btn-ghost"><i class="fas fa-question-circle"></i></button>
+      <button class="btn btn-primary" onclick="openPaymentModal()">
+        <i class="fas fa-plus"></i> New Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="page-dashboard" class="page active">
+    <div class="gta-banner">
+      <img src="https://www.ghana.travel/wp-content/uploads/2022/01/GTA_Logo.png" alt="GTA" onerror="this.src='https://via.placeholder.com/60x60/fff/1A4A2E?text=GTA'">
+      <div class="gta-banner-text">
+        <h3>Ghana Tourism Authority</h3>
+        <p>Integrated Payment & Revenue Management System · Fiscal Year 2026</p>
+      </div>
+      <div class="gta-banner-badge"><i class="fas fa-circle" style="font-size:7px;margin-right:5px;color:#4caf7d;"></i> System Online</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon gold"><i class="fas fa-coins"></i></div>
+        <div class="stat-value">₵2.84M</div>
+        <div class="stat-label">Total Revenue (YTD)</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> +18.4% vs last year</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-check-double"></i></div>
+        <div class="stat-value">4,291</div>
+        <div class="stat-label">Payments Processed</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> +9.1% this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-user-check"></i></div>
+        <div class="stat-value">3,188</div>
+        <div class="stat-label">Registered Customers</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> +142 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-value">23</div>
+        <div class="stat-label">Pending Transactions</div>
+        <div class="stat-change down"><i class="fas fa-arrow-down"></i> 3 failed today</div>
+      </div>
+    </div>
+
+    <div class="grid-3-1">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Monthly Revenue — 2026</span>
+          <button class="btn btn-ghost" style="font-size:12px;">View All <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="card-body">
+          <div class="chart-bars" id="revenueChart"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px;">
+            <span style="font-size:10px;color:var(--text-dim)">Jan</span>
+            <span style="font-size:10px;color:var(--text-dim)">Feb</span>
+            <span style="font-size:10px;color:var(--text-dim)">Mar</span>
+            <span style="font-size:10px;color:var(--text-dim)">Apr</span>
+            <span style="font-size:10px;color:var(--text-dim)">May</span>
+            <span style="font-size:10px;color:var(--text-dim)">Jun</span>
+            <span style="font-size:10px;color:var(--text-dim)">Jul</span>
+            <span style="font-size:10px;color:var(--text-dim)">Aug</span>
+            <span style="font-size:10px;color:var(--text-dim)">Sep</span>
+            <span style="font-size:10px;color:var(--text-dim)">Oct</span>
+            <span style="font-size:10px;color:var(--text-dim)">Nov</span>
+            <span style="font-size:10px;color:var(--text-dim)">Dec</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Revenue Breakdown</span>
+        </div>
+        <div class="card-body">
+          <div class="donut-container" style="margin-bottom:16px;">
+            <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#1C3824" stroke-width="20"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#C8960C" stroke-width="20"
+                stroke-dasharray="164 163" stroke-dashoffset="0" stroke-linecap="round"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#2D7A4F" stroke-width="20"
+                stroke-dasharray="98 229" stroke-dashoffset="-164" stroke-linecap="round"/>
+              <circle cx="70" cy="70" r="52" fill="none" stroke="#6495ED" stroke-width="20"
+                stroke-dasharray="65 262" stroke-dashoffset="-262" stroke-linecap="round"/>
+            </svg>
+            <div class="donut-center"><strong>₵2.84M</strong><span>Total</span></div>
+          </div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C8960C"></div> Attraction Fees — 50%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#2D7A4F"></div> Park Entry — 30%</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#6495ED"></div> Tour Permits — 20%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Recent Transactions</span>
+          <button class="btn btn-ghost" style="font-size:12px;" onclick="showPage('payments', document.querySelector('.nav-item:nth-child(3)'))">See All</button>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kofi Mensah</td>
+                <td>Mole Nat. Park</td>
+                <td style="color:var(--gold);font-weight:600;">₵450</td>
+                <td><span class="status-badge success"><i class="fas fa-circle" style="font-size:6px;"></i> Paid</span></td>
+              </tr>
+              <tr>
+                <td>Sarah Williams</td>
+                <td>Kakum Canopy</td>
+                <td style="color:var(--gold);font-weight:600;">₵180</td>
+                <td><span class="status-badge success"><i class="fas fa-circle" style="font-size:6px;"></i> Paid</span></td>
+              </tr>
+              <tr>
+                <td>Kwame Asante</td>
+                <td>Cape Coast Castle</td>
+                <td style="color:var(--gold);font-weight:600;">₵200</td>
+                <td><span class="status-badge pending"><i class="fas fa-circle" style="font-size:6px;"></i> Pending</span></td>
+              </tr>
+              <tr>
+                <td>Abena Darko</td>
+                <td>Boti Falls</td>
+                <td style="color:var(--gold);font-weight:600;">₵95</td>
+                <td><span class="status-badge success"><i class="fas fa-circle" style="font-size:6px;"></i> Paid</span></td>
+              </tr>
+              <tr>
+                <td>John Opoku</td>
+                <td>Tour Permit</td>
+                <td style="color:#E57373;font-weight:600;">₵300</td>
+                <td><span class="status-badge failed"><i class="fas fa-circle" style="font-size:6px;"></i> Failed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Activity Feed</span></div>
+        <div class="card-body">
+          <div class="activity-item">
+            <div class="activity-icon green"><i class="fas fa-check"></i></div>
+            <div class="activity-info">
+              <strong>Payment Confirmed</strong>
+              <span>Kofi Mensah — Mole National Park · ₵450</span>
+            </div>
+            <div class="activity-time">2m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon gold"><i class="fas fa-user-plus"></i></div>
+            <div class="activity-info">
+              <strong>New Customer Registered</strong>
+              <span>Yaa Asantewaa — International Visitor</span>
+            </div>
+            <div class="activity-time">14m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon red"><i class="fas fa-times"></i></div>
+            <div class="activity-info">
+              <strong>Payment Failed</strong>
+              <span>John Opoku — Tour Permit · ₵300</span>
+            </div>
+            <div class="activity-time">32m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon green"><i class="fas fa-receipt"></i></div>
+            <div class="activity-info">
+              <strong>Receipt Generated</strong>
+              <span>Sarah Williams — Kakum Canopy Walk · ₵180</span>
+            </div>
+            <div class="activity-time">1h ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-icon gold"><i class="fas fa-qrcode"></i></div>
+            <div class="activity-info">
+              <strong>QR Code Scanned at Gate</strong>
+              <span>Abena Darko — Boti Falls Entry Verified</span>
+            </div>
+            <div class="activity-time">1h ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAYMENTS PAGE ===== -->
+  <div id="page-payments" class="page">
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search transactions by name, ID, or attraction...">
+      </div>
+      <select class="form-input" style="width:auto;">
+        <option>All Status</option>
+        <option>Paid</option>
+        <option>Pending</option>
+        <option>Failed</option>
+      </select>
+      <select class="form-input" style="width:auto;">
+        <option>All Attractions</option>
+        <option>Mole National Park</option>
+        <option>Kakum Canopy</option>
+        <option>Cape Coast Castle</option>
+      </select>
+      <button class="btn btn-primary" onclick="openPaymentModal()"><i class="fas fa-plus"></i> New</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">All Transactions</span>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="exportCSV()"><i class="fas fa-download"></i> Export</button>
+          <button class="btn btn-ghost"><i class="fas fa-filter"></i></button>
+        </div>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Ref #</th>
+              <th>Customer</th>
+              <th>Attraction / Service</th>
+              <th>Date</th>
+              <th>Method</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="payments-table-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CUSTOMERS PAGE ===== -->
+  <div id="page-customers" class="page">
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search customers...">
+      </div>
+      <button class="btn btn-primary" onclick="addCustomer()"><i class="fas fa-user-plus"></i> Add Customer</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Customer Registry</span>
+        <span style="font-size:12px;color:var(--text-dim);">3,188 registered</span>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Type</th>
+              <th>Country</th>
+              <th>Total Visits</th>
+              <th>Total Spent</th>
+              <th>Last Visit</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="customers-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REVENUE PAGE ===== -->
+  <div id="page-revenue" class="page">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon gold"><i class="fas fa-landmark"></i></div>
+        <div class="stat-value">₵1.42M</div>
+        <div class="stat-label">Attraction Fees</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> +22% YoY</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-tree"></i></div>
+        <div class="stat-value">₵852K</div>
+        <div class="stat-label">Park Entry Fees</div>
+        <div class="stat-change up"><i class="fas fa-arrow-up"></i> +14% YoY</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-passport"></i></div>
+        <div class="stat-value">₵568K</div>
+        <div class="stat-label">Tour Permits</div>
+        <div class="stat-change down"><i class="fas fa-arrow-down"></i> -3% YoY</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-undo"></i></div>
+        <div class="stat-value">₵21K</div>
+        <div class="stat-label">Refunds Issued</div>
+        <div class="stat-change up"><i class="fas fa-arrow-down"></i> -8% (good)</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Top Attractions by Revenue</span></div>
+        <div class="card-body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>Attraction</th><th>Visitors</th><th>Revenue</th><th>Share</th></tr></thead>
+            <tbody>
+              <tr><td><i class="fas fa-elephant" style="color:var(--gold);margin-right:8px;"></i>Mole National Park</td><td>812</td><td style="color:var(--gold);font-weight:600;">₵365K</td><td><div style="background:var(--gold);height:6px;border-radius:3px;width:90%;"></div></td></tr>
+              <tr><td><i class="fas fa-water" style="color:var(--gold);margin-right:8px;"></i>Kakum Canopy Walk</td><td>634</td><td style="color:var(--gold);font-weight:600;">₵228K</td><td><div style="background:var(--gold);height:6px;border-radius:3px;width:70%;"></div></td></tr>
+              <tr><td><i class="fas fa-chess-castle" style="color:var(--gold);margin-right:8px;"></i>Cape Coast Castle</td><td>520</td><td style="color:var(--gold);font-weight:600;">₵208K</td><td><div style="background:var(--gold);height:6px;border-radius:3px;width:58%;"></div></td></tr>
+              <tr><td><i class="fas fa-mountain" style="color:var(--gold);margin-right:8px;"></i>Boti Falls</td><td>418</td><td style="color:var(--gold);font-weight:600;">₵167K</td><td><div style="background:var(--gold);height:6px;border-radius:3px;width:45%;"></div></td></tr>
+              <tr><td><i class="fas fa-dungeon" style="color:var(--gold);margin-right:8px;"></i>Elmina Castle</td><td>380</td><td style="color:var(--gold);font-weight:600;">₵152K</td><td><div style="background:var(--gold);height:6px;border-radius:3px;width:40%;"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Payment Method Distribution</span></div>
+        <div class="card-body">
+          <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+                <span><i class="fas fa-mobile-alt" style="color:var(--gold);margin-right:6px;"></i>Mobile Money (MTN/Vodafone)</span>
+                <span style="color:var(--gold);font-weight:600;">58%</span>
+              </div>
+              <div style="height:8px;background:var(--surface2);border-radius:4px;"><div style="width:58%;height:100%;background:var(--gold);border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+                <span><i class="fas fa-credit-card" style="color:#6495ED;margin-right:6px;"></i>Card (Visa / Mastercard)</span>
+                <span style="color:#6495ED;font-weight:600;">27%</span>
+              </div>
+              <div style="height:8px;background:var(--surface2);border-radius:4px;"><div style="width:27%;height:100%;background:#6495ED;border-radius:4px;"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px;">
+                <span><i class="fas fa-money-bill" style="color:var(--forest-light);margin-right:6px;"></i>Cash</span>
+                <span style="color:var(--forest-light);font-weight:600;">15%</span>
+              </div>
+              <div style="height:8px;background:var(--surface2);border-radius:4px;"><div style="width:15%;height:100%;background:var(--forest-light);border-radius:4px;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RECEIPTS PAGE ===== -->
+  <div id="page-receipts" class="page">
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search receipt by ref number or name...">
+      </div>
+      <button class="btn btn-primary" onclick="viewSampleReceipt()"><i class="fas fa-eye"></i> View Sample Receipt</button>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Generated Receipts</span></div>
+      <div class="card-body" style="padding:0;">
+        <table class="data-table">
+          <thead>
+            <tr><th>Receipt #</th><th>Customer</th><th>Attraction</th><th>Date</th><th>Amount</th><th>Action</th></tr>
+          </thead>
+          <tbody id="receipts-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECURITY PAGE ===== -->
+  <div id="page-security" class="page">
+    <div class="card" style="max-width:520px;margin-bottom:20px;">
+      <div class="card-header"><span class="card-title"><i class="fas fa-lock" style="color:var(--gold);margin-right:8px;"></i>Transaction PIN Setup</span></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Enter a 4-digit PIN to authorize and approve all outgoing payments and receipts.</p>
+        <div class="pin-inputs">
+          <input type="password" class="pin-input" maxlength="1" oninput="movePIN(this, 1)" id="pin1">
+          <input type="password" class="pin-input" maxlength="1" oninput="movePIN(this, 2)" id="pin2">
+          <input type="password" class="pin-input" maxlength="1" oninput="movePIN(this, 3)" id="pin3">
+          <input type="password" class="pin-input" maxlength="1" oninput="movePIN(this, 4)" id="pin4">
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="savePin()"><i class="fas fa-shield-alt"></i> Set Transaction PIN</button>
+      </div>
+    </div>
+
+    <div class="card" style="max-width:520px;">
+      <div class="card-header"><span class="card-title"><i class="fas fa-qrcode" style="color:var(--gold);margin-right:8px;"></i>Admin QR Access Code</span></div>
+      <div class="card-body" style="text-align:center;">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Scan this QR code to access the admin panel on mobile or share with authorized staff.</p>
+        <div id="admin-qr" style="display:inline-block;padding:16px;background:#fff;border-radius:12px;"></div>
+        <p style="font-size:11px;color:var(--text-dim);margin-top:12px;">Admin ID: GTA-ADMIN-2026-AO</p>
+        <button class="btn btn-outline" style="margin-top:12px;" onclick="refreshQR()"><i class="fas fa-sync-alt"></i> Regenerate QR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REPORTS PAGE ===== -->
+  <div id="page-reports" class="page">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Generate Reports</span></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Report Type</label>
+            <select class="form-select">
+              <option>Revenue Summary</option>
+              <option>Transaction Log</option>
+              <option>Customer Report</option>
+              <option>Attraction Performance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date Range</label>
+            <select class="form-select">
+              <option>This Month</option>
+              <option>Last Month</option>
+              <option>This Quarter</option>
+              <option>This Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">From Date</label>
+            <input type="date" class="form-input" value="2026-01-01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">To Date</label>
+            <input type="date" class="form-input" value="2026-02-19">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Format</label>
+            <select class="form-select">
+              <option>PDF</option>
+              <option>Excel (CSV)</option>
+              <option>Print</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-file-export"></i> Generate Report</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS PAGE ===== -->
+  <div id="page-settings" class="page">
+    <div class="card" style="max-width:600px;">
+      <div class="card-header"><span class="card-title">System Settings</span></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">Organization Name</label>
+          <input type="text" class="form-input" value="Ghana Tourism Authority">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Currency</label>
+          <select class="form-select"><option>GHS — Ghana Cedi (₵)</option><option>USD</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Receipt Footer Message</label>
+          <input type="text" class="form-input" value="Thank you for visiting Ghana. Experience the Soul of Africa!">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tax Rate (%)</label>
+          <input type="number" class="form-input" value="0">
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">New Payment</span>
+      <button class="modal-close" onclick="closePaymentModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Progress Steps -->
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="step-circle active" id="s1">1</div>
+          <div class="step-label active" id="sl1">Customer</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle todo" id="s2">2</div>
+          <div class="step-label" id="sl2">Attraction</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle todo" id="s3">3</div>
+          <div class="step-label" id="sl3">Payment</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle todo" id="s4">4</div>
+          <div class="step-label" id="sl4">Confirm PIN</div>
+        </div>
+        <div class="flow-step">
+          <div class="step-circle todo" id="s5"><i class="fas fa-check" style="font-size:13px;"></i></div>
+          <div class="step-label" id="sl5">Receipt</div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Customer Info -->
+      <div class="step-panel active" id="panel1">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">First Name *</label>
+            <input type="text" class="form-input" id="cust-fname" placeholder="Kofi">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name *</label>
+            <input type="text" class="form-input" id="cust-lname" placeholder="Mensah">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address *</label>
+            <input type="email" class="form-input" id="cust-email" placeholder="kofi@example.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" class="form-input" id="cust-phone" placeholder="+233 24 000 0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Visitor Type</label>
+            <select class="form-select" id="cust-type">
+              <option>Domestic</option>
+              <option>International</option>
+              <option>School Group</option>
+              <option>Corporate</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ID / Passport Number</label>
+            <input type="text" class="form-input" id="cust-id" placeholder="GHA-12345678">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+          <button class="btn btn-primary" onclick="nextStep(2)">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 2: Attraction Selection -->
+      <div class="step-panel" id="panel2">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:14px;">Select the attraction or service the customer is paying for:</p>
+        <div class="attraction-grid">
+          <div class="attraction-card" onclick="selectAttraction(this,'Mole National Park','450')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/African_elephant.jpg/320px-African_elephant.jpg" alt="Mole" onerror="this.src='https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Mole+National+Park'">
+            <div class="attraction-info"><strong>Mole National Park</strong><span>₵450 per person</span></div>
+          </div>
+          <div class="attraction-card" onclick="selectAttraction(this,'Kakum Canopy Walk','180')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Kakum_National_Park.jpg/320px-Kakum_National_Park.jpg" alt="Kakum" onerror="this.src='https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Kakum+Canopy+Walk'">
+            <div class="attraction-info"><strong>Kakum Canopy Walk</strong><span>₵180 per person</span></div>
+          </div>
+          <div class="attraction-card" onclick="selectAttraction(this,'Cape Coast Castle','200')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Cape_Coast_Castle_01.jpg/320px-Cape_Coast_Castle_01.jpg" alt="Cape Coast" onerror="this.src='https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Cape+Coast+Castle'">
+            <div class="attraction-info"><strong>Cape Coast Castle</strong><span>₵200 per person</span></div>
+          </div>
+          <div class="attraction-card" onclick="selectAttraction(this,'Boti Falls','95')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Boti_Falls.jpg/320px-Boti_Falls.jpg" alt="Boti Falls" onerror="this.src='https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Boti+Falls'">
+            <div class="attraction-info"><strong>Boti Falls</strong><span>₵95 per person</span></div>
+          </div>
+          <div class="attraction-card" onclick="selectAttraction(this,'Elmina Castle','200')">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/Elmina_Castle.jpg/320px-Elmina_Castle.jpg" alt="Elmina" onerror="this.src='https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Elmina+Castle'">
+            <div class="attraction-info"><strong>Elmina Castle</strong><span>₵200 per person</span></div>
+          </div>
+          <div class="attraction-card" onclick="selectAttraction(this,'Tour Guide Permit','300')">
+            <img src="https://via.placeholder.com/200x100/1A4A2E/C8960C?text=Tour+Permit" alt="Permit">
+            <div class="attraction-info"><strong>Tour Guide Permit</strong><span>₵300</span></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Visitors</label>
+          <input type="number" class="form-input" id="visitor-count" value="1" min="1" style="width:120px;" onchange="updateTotal()">
+        </div>
+        <div style="padding:14px;background:var(--surface2);border-radius:10px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;"><span>Selected:</span><strong id="selected-attraction-label">—</strong></div>
+          <div style="display:flex;justify-content:space-between;font-size:15px;margin-top:8px;color:var(--gold);font-weight:700;"><span>Total:</span><span id="total-display">₵0</span></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:16px;">
+          <button class="btn btn-outline" onclick="nextStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" onclick="nextStep(3)">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Payment Method -->
+      <div class="step-panel" id="panel3">
+        <p style="font-size:13px;color:var(--text-dim);margin-bottom:10px;">Choose payment method:</p>
+        <div class="payment-methods">
+          <div class="pay-method" onclick="selectMethod(this,'Mobile Money')">
+            <i class="fas fa-mobile-alt"></i>
+            <span>Mobile Money</span>
+          </div>
+          <div class="pay-method" onclick="selectMethod(this,'Card')">
+            <i class="fas fa-credit-card"></i>
+            <span>Card</span>
+          </div>
+          <div class="pay-method" onclick="selectMethod(this,'Cash')">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Cash</span>
+          </div>
+        </div>
+
+        <div id="momo-fields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Mobile Money Number</label>
+            <input type="tel" class="form-input" placeholder="024 000 0000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Network</label>
+            <select class="form-select">
+              <option>MTN MoMo</option>
+              <option>Vodafone Cash</option>
+              <option>AirtelTigo Money</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="card-fields" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Card Number</label>
+            <input type="text" class="form-input" placeholder="**** **** **** ****">
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Expiry</label>
+              <input type="text" class="form-input" placeholder="MM/YY">
+            </div>
+            <div class="form-group">
+              <label class="form-label">CVV</label>
+              <input type="text" class="form-input" placeholder="***">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;margin-top:16px;">
+          <button class="btn btn-outline" onclick="nextStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" onclick="nextStep(4)">Continue to PIN <i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+
+      <!-- STEP 4: PIN Confirmation -->
+      <div class="step-panel" id="panel4">
+        <div style="text-align:center;padding:20px 0;">
+          <div style="width:64px;height:64px;background:rgba(200,150,12,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px;color:var(--gold);">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h3 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:6px;">Authorize Payment</h3>
+          <p style="font-size:13px;color:var(--text-dim);">Enter your 4-digit transaction PIN to authorize this payment.</p>
+          <div class="pin-inputs">
+            <input type="password" class="pin-input" maxlength="1" oninput="movePIN2(this, 1)" id="tpin1">
+            <input type="password" class="pin-input" maxlength="1" oninput="movePIN2(this, 2)" id="tpin2">
+            <input type="password" class="pin-input" maxlength="1" oninput="movePIN2(this, 3)" id="tpin3">
+            <input type="password" class="pin-input" maxlength="1" oninput="movePIN2(this, 4)" id="tpin4">
+          </div>
+          <div style="background:var(--surface2);border-radius:10px;padding:12px 20px;text-align:left;margin:0 auto;max-width:300px;">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;"><span style="color:var(--text-dim);">Attraction</span><strong id="summary-attraction">—</strong></div>
+            <div style="display:flex;justify-content:space-between;font-size:16px;color:var(--gold);font-weight:700;"><span>Amount Due</span><span id="summary-total">₵0</span></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <button class="btn btn-outline" onclick="nextStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="btn btn-primary" onclick="processPayment()"><i class="fas fa-shield-alt"></i> Authorize & Pay</button>
+        </div>
+      </div>
+
+      <!-- STEP 5: Receipt -->
+      <div class="step-panel" id="panel5">
+        <div class="receipt" id="receipt-preview">
+          <div class="receipt-header">
+            <img src="https://www.ghana.travel/wp-content/uploads/2022/01/GTA_Logo.png" alt="GTA" onerror="this.src='https://via.placeholder.com/56x56/fff/1A4A2E?text=GTA'">
+            <h3>Ghana Tourism Authority</h3>
+            <p>Official Payment Receipt</p>
+          </div>
+          <div class="receipt-success">
+            <div class="check-icon"><i class="fas fa-check"></i></div>
+            <h4>Payment Successful!</h4>
+            <p id="r-date">19 February 2026 · 10:42 AM</p>
+          </div>
+          <div class="receipt-body">
+            <div class="receipt-row">
+              <span class="label">Receipt No.</span>
+              <span class="value" id="r-ref">GTA-2026-00000</span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Customer Name</span>
+              <span class="value" id="r-name">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Phone</span>
+              <span class="value" id="r-phone">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Attraction</span>
+              <span class="value" id="r-attraction">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Visitors</span>
+              <span class="value" id="r-visitors">—</span>
+            </div>
+            <div class="receipt-row">
+              <span class="label">Payment Method</span>
+              <span class="value" id="r-method">—</span>
+            </div>
+            <div class="receipt-row total">
+              <span class="label" style="font-size:14px;font-weight:600;">Total Paid</span>
+              <span class="value" id="r-total">—</span>
+            </div>
+          </div>
+          <div class="receipt-qr">
+            <div id="qrcode"></div>
+            <p>Scan this QR code at the attraction gate for entry verification</p>
+          </div>
+          <div class="receipt-footer">
+            Ghana Tourism Authority · P.O. Box GP 7103, Accra, Ghana · www.ghana.travel<br>
+            Thank you for visiting Ghana. Experience the Soul of Africa!
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:12px;margin-top:20px;">
+          <button class="btn btn-primary" onclick="printReceipt()"><i class="fas fa-print"></i> Print Receipt</button>
+          <button class="btn btn-outline" onclick="emailReceipt()"><i class="fas fa-envelope"></i> Email Receipt</button>
+          <button class="btn btn-outline" onclick="closePaymentModal()"><i class="fas fa-times"></i> Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const payments = [
+  { ref:'GTA-2026-4291', name:'Kofi Mensah', attraction:'Mole National Park', date:'19 Feb 2026', method:'Mobile Money', amount:'₵450', status:'success' },
+  { ref:'GTA-2026-4290', name:'Sarah Williams', attraction:'Kakum Canopy Walk', date:'19 Feb 2026', method:'Card', amount:'₵180', status:'success' },
+  { ref:'GTA-2026-4289', name:'Kwame Asante', attraction:'Cape Coast Castle', date:'18 Feb 2026', method:'Mobile Money', amount:'₵200', status:'pending' },
+  { ref:'GTA-2026-4288', name:'Abena Darko', attraction:'Boti Falls', date:'18 Feb 2026', method:'Cash', amount:'₵95', status:'success' },
+  { ref:'GTA-2026-4287', name:'John Opoku', attraction:'Tour Guide Permit', date:'18 Feb 2026', method:'Card', amount:'₵300', status:'failed' },
+  { ref:'GTA-2026-4286', name:'Yaa Asantewaa', attraction:'Elmina Castle', date:'17 Feb 2026', method:'Mobile Money', amount:'₵200', status:'success' },
+  { ref:'GTA-2026-4285', name:'Emmanuel Boateng', attraction:'Mole National Park', date:'17 Feb 2026', method:'Card', amount:'₵900', status:'success' },
+];
+
+const customers = [
+  { name:'Kofi Mensah', type:'Domestic', country:'Ghana', visits:5, spent:'₵2,250', last:'19 Feb 2026' },
+  { name:'Sarah Williams', type:'International', country:'UK', visits:2, spent:'₵380', last:'19 Feb 2026' },
+  { name:'Kwame Asante', type:'Domestic', country:'Ghana', visits:3, spent:'₵740', last:'18 Feb 2026' },
+  { name:'Abena Darko', type:'Domestic', country:'Ghana', visits:8, spent:'₵1,120', last:'18 Feb 2026' },
+  { name:'Yaa Asantewaa', type:'International', country:'USA', visits:1, spent:'₵200', last:'17 Feb 2026' },
+  { name:'Emmanuel Boateng', type:'Corporate', country:'Ghana', visits:12, spent:'₵5,400', last:'17 Feb 2026' },
+];
+
+const receipts = [
+  { ref:'GTA-2026-4291', name:'Kofi Mensah', attraction:'Mole National Park', date:'19 Feb 2026', amount:'₵450' },
+  { ref:'GTA-2026-4290', name:'Sarah Williams', attraction:'Kakum Canopy Walk', date:'19 Feb 2026', amount:'₵180' },
+  { ref:'GTA-2026-4288', name:'Abena Darko', attraction:'Boti Falls', date:'18 Feb 2026', amount:'₵95' },
+  { ref:'GTA-2026-4286', name:'Yaa Asantewaa', attraction:'Elmina Castle', date:'17 Feb 2026', amount:'₵200' },
+  { ref:'GTA-2026-4285', name:'Emmanuel Boateng', attraction:'Mole Nat. Park (x2)', date:'17 Feb 2026', amount:'₵900' },
+];
+
+// ===== STATE =====
+let currentStep = 1;
+let selectedAttraction = '';
+let selectedPrice = 0;
+let selectedMethod = '';
+let paymentCounter = 4292;
+
+// ===== NAV =====
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+
+  const titles = {
+    dashboard: ['Dashboard', 'Overview of payments, revenue and customers'],
+    payments: ['Payments', 'All transactions and payment processing'],
+    customers: ['Customers', 'Customer registry and management'],
+    revenue: ['Revenue', 'Revenue tracking and analytics'],
+    receipts: ['Receipts', 'Generated receipts and documents'],
+    reports: ['Reports', 'Generate and export system reports'],
+    settings: ['Settings', 'System configuration'],
+    security: ['Security & PIN', 'Transaction PIN and QR access management'],
+  };
+  document.getElementById('page-title').textContent = titles[id]?.[0] || id;
+  document.getElementById('page-sub').textContent = titles[id]?.[1] || '';
+
+  if (id === 'security') initAdminQR();
+}
+
+// ===== RENDER TABLES =====
+function renderPayments() {
+  const tbody = document.getElementById('payments-table-body');
+  tbody.innerHTML = payments.map(p => `
+    <tr>
+      <td style="font-size:12px;color:var(--text-dim);">${p.ref}</td>
+      <td>${p.name}</td>
+      <td>${p.attraction}</td>
+      <td style="color:var(--text-dim);font-size:12px;">${p.date}</td>
+      <td><i class="fas ${p.method === 'Mobile Money' ? 'fa-mobile-alt' : p.method === 'Card' ? 'fa-credit-card' : 'fa-money-bill-wave'}" style="color:var(--gold);margin-right:6px;"></i>${p.method}</td>
+      <td style="color:var(--gold);font-weight:700;">${p.amount}</td>
+      <td><span class="status-badge ${p.status}"><i class="fas fa-circle" style="font-size:6px;"></i> ${p.status.charAt(0).toUpperCase()+p.status.slice(1)}</span></td>
+      <td>
+        <button class="btn btn-ghost" style="font-size:11px;padding:5px 8px;" onclick="viewReceipt('${p.ref}','${p.name}','${p.attraction}','${p.amount}','${p.method}','${p.date}')"><i class="fas fa-receipt"></i></button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderCustomers() {
+  const colors = ['#C8960C','#2D7A4F','#6495ED','#E57373','#C8960C','#4CAF7D'];
+  const tbody = document.getElementById('customers-table-body');
+  tbody.innerHTML = customers.map((c, i) => `
+    <tr>
+      <td>
+        <div class="customer-info">
+          <div class="customer-avatar" style="background:${colors[i%colors.length]}">${c.name.split(' ').map(n=>n[0]).join('')}</div>
+          <span>${c.name}</span>
+        </div>
+      </td>
+      <td><span class="status-badge ${c.type === 'International' ? 'blue' : c.type === 'Corporate' ? 'pending' : 'success'}" style="background:rgba(100,149,237,0.12);color:#6495ED;">${c.type}</span></td>
+      <td>${c.country}</td>
+      <td>${c.visits}</td>
+      <td style="color:var(--gold);font-weight:600;">${c.spent}</td>
+      <td style="color:var(--text-dim);font-size:12px;">${c.last}</td>
+      <td><button class="btn btn-ghost" style="font-size:11px;padding:5px 8px;" onclick="viewCustomerDetail('${c.name}')"><i class="fas fa-eye"></i></button></td>
+    </tr>
+  `).join('');
+}
+
+function renderReceipts() {
+  const tbody = document.getElementById('receipts-table-body');
+  tbody.innerHTML = receipts.map(r => `
+    <tr>
+      <td style="font-size:12px;color:var(--text-dim);">${r.ref}</td>
+      <td>${r.name}</td>
+      <td>${r.attraction}</td>
+      <td style="color:var(--text-dim);font-size:12px;">${r.date}</td>
+      <td style="color:var(--gold);font-weight:700;">${r.amount}</td>
+      <td><button class="btn btn-primary" style="font-size:11px;padding:5px 12px;" onclick="viewReceipt('${r.ref}','${r.name}','${r.attraction}','${r.amount}','Mobile Money','${r.date}')"><i class="fas fa-eye"></i> View</button></td>
+    </tr>
+  `).join('');
+}
+
+// ===== CHART =====
+function renderChart() {
+  const data = [220, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const labels = ['₵220K','₵280K','—','—','—','—','—','—','—','—','—','—'];
+  const container = document.getElementById('revenueChart');
+  container.innerHTML = data.map((v, i) => `
+    <div class="bar-group">
+      <div class="bar" data-val="${labels[i]}" style="height:${v ? (v/300*100) : 8}%;${v === 0 ? 'background:var(--surface2);opacity:0.4;' : ''}"></div>
+    </div>
+  `).join('');
+}
+
+// ===== PAYMENT MODAL =====
+function openPaymentModal() {
+  currentStep = 1;
+  document.getElementById('paymentModal').classList.add('open');
+  updateStepUI(1);
+}
+
+function closePaymentModal() {
+  document.getElementById('paymentModal').classList.remove('open');
+  resetForm();
+}
+
+function resetForm() {
+  currentStep = 1;
+  selectedAttraction = '';
+  selectedPrice = 0;
+  selectedMethod = '';
+  document.querySelectorAll('.attraction-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+  document.getElementById('selected-attraction-label').textContent = '—';
+  document.getElementById('total-display').textContent = '₵0';
+  document.getElementById('visitor-count').value = 1;
+  ['cust-fname','cust-lname','cust-email','cust-phone','cust-id'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['momo-fields','card-fields'].forEach(id => document.getElementById(id).style.display = 'none');
+}
+
+function updateStepUI(step) {
+  document.querySelectorAll('.step-panel').forEach((p, i) => {
+    p.classList.toggle('active', i + 1 === step);
+  });
+  for (let i = 1; i <= 5; i++) {
+    const circle = document.getElementById('s' + i);
+    const label = document.getElementById('sl' + i);
+    circle.className = 'step-circle ' + (i < step ? 'done' : i === step ? 'active' : 'todo');
+    label.className = 'step-label' + (i === step ? ' active' : '');
+    if (i < step) circle.innerHTML = '<i class="fas fa-check" style="font-size:12px;"></i>';
+    else if (i === 5) circle.innerHTML = '<i class="fas fa-check" style="font-size:13px;"></i>';
+    else circle.textContent = i;
+  }
+}
+
+function nextStep(step) {
+  if (step === 2 && !validateStep1()) return;
+  if (step === 3 && !selectedAttraction) {
+    Swal.fire({ icon: 'warning', title: 'No Attraction Selected', text: 'Please select an attraction or service.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+    return;
+  }
+  if (step === 4 && !selectedMethod) {
+    Swal.fire({ icon: 'warning', title: 'No Payment Method', text: 'Please select a payment method.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+    return;
+  }
+  if (step === 4) {
+    document.getElementById('summary-attraction').textContent = selectedAttraction;
+    document.getElementById('summary-total').textContent = '₵' + (selectedPrice * parseInt(document.getElementById('visitor-count').value));
+  }
+  currentStep = step;
+  updateStepUI(step);
+}
+
+function validateStep1() {
+  const fname = document.getElementById('cust-fname').value.trim();
+  const lname = document.getElementById('cust-lname').value.trim();
+  const email = document.getElementById('cust-email').value.trim();
+  if (!fname || !lname || !email) {
+    Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please fill in all required fields.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+    return false;
+  }
+  return true;
+}
+
+function selectAttraction(el, name, price) {
+  document.querySelectorAll('.attraction-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAttraction = name;
+  selectedPrice = parseInt(price);
+  updateTotal();
+}
+
+function updateTotal() {
+  const count = parseInt(document.getElementById('visitor-count').value) || 1;
+  const total = selectedPrice * count;
+  document.getElementById('selected-attraction-label').textContent = selectedAttraction || '—';
+  document.getElementById('total-display').textContent = selectedAttraction ? '₵' + total : '₵0';
+}
+
+function selectMethod(el, method) {
+  document.querySelectorAll('.pay-method').forEach(m => m.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMethod = method;
+  document.getElementById('momo-fields').style.display = method === 'Mobile Money' ? 'block' : 'none';
+  document.getElementById('card-fields').style.display = method === 'Card' ? 'block' : 'none';
+}
+
+function processPayment() {
+  const pins = ['tpin1','tpin2','tpin3','tpin4'].map(id => document.getElementById(id).value);
+  if (pins.some(p => !p)) {
+    Swal.fire({ icon: 'warning', title: 'Enter PIN', text: 'Please enter all 4 digits of your transaction PIN.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Processing Payment...',
+    text: 'Please wait while we process the transaction.',
+    background: '#142A1A',
+    color: '#F0EDE4',
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  setTimeout(() => {
+    Swal.close();
+    generateReceipt();
+  }, 2000);
+}
+
+function generateReceipt() {
+  const fname = document.getElementById('cust-fname').value;
+  const lname = document.getElementById('cust-lname').value;
+  const phone = document.getElementById('cust-phone').value || '+233 20 000 0000';
+  const count = document.getElementById('visitor-count').value;
+  const total = selectedPrice * parseInt(count);
+  const ref = 'GTA-2026-' + paymentCounter++;
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+  document.getElementById('r-ref').textContent = ref;
+  document.getElementById('r-name').textContent = fname + ' ' + lname;
+  document.getElementById('r-phone').textContent = phone;
+  document.getElementById('r-attraction').textContent = selectedAttraction;
+  document.getElementById('r-visitors').textContent = count + (count == 1 ? ' visitor' : ' visitors');
+  document.getElementById('r-method').textContent = selectedMethod;
+  document.getElementById('r-total').textContent = '₵' + total;
+  document.getElementById('r-date').textContent = dateStr;
+
+  const qrContainer = document.getElementById('qrcode');
+  qrContainer.innerHTML = '';
+  new QRCode(qrContainer, {
+    text: JSON.stringify({ ref, customer: fname + ' ' + lname, attraction: selectedAttraction, total: '₵' + total }),
+    width: 100, height: 100,
+    colorDark: '#1A4A2E',
+    colorLight: '#ffffff',
+  });
+
+  // Add to payments list
+  payments.unshift({
+    ref, name: fname + ' ' + lname,
+    attraction: selectedAttraction,
+    date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+    method: selectedMethod, amount: '₵' + total, status: 'success'
+  });
+  receipts.unshift({ ref, name: fname + ' ' + lname, attraction: selectedAttraction, date: now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }), amount: '₵' + total });
+
+  nextStep(5);
+}
+
+// ===== RECEIPT VIEWER =====
+function viewReceipt(ref, name, attraction, amount, method, date) {
+  Swal.fire({
+    html: `
+      <div style="text-align:left;">
+        <div style="background:#1A4A2E;color:#fff;padding:20px;border-radius:12px 12px 0 0;text-align:center;margin:-16px -16px 0;">
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;">Ghana Tourism Authority</div>
+          <div style="font-size:11px;opacity:0.7;">Official Payment Receipt</div>
+        </div>
+        <div style="background:#F0FBF5;padding:16px;text-align:center;border-bottom:1px dashed #ddd;margin:0 -16px;">
+          <div style="width:44px;height:44px;background:#2D7A4F;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;color:white;font-size:20px;">✓</div>
+          <div style="color:#2D7A4F;font-weight:700;">Payment Confirmed</div>
+          <div style="color:#666;font-size:12px;">${date}</div>
+        </div>
+        <div style="padding:12px 0;">
+          ${[['Receipt No.', ref], ['Customer', name], ['Attraction', attraction], ['Method', method], ['Total Paid', `<strong style="color:#2D7A4F;font-size:18px;">${amount}</strong>`]].map(([l, v]) => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+              <span style="color:#666;">${l}</span><span>${v}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div style="text-align:center;font-size:10px;color:#999;margin-top:8px;">Ghana Tourism Authority · www.ghana.travel</div>
+      </div>
+    `,
+    background: '#fff',
+    color: '#1a1a1a',
+    confirmButtonText: '<i class="fas fa-print"></i> Print',
+    confirmButtonColor: '#1A4A2E',
+    showCancelButton: true,
+    cancelButtonText: 'Close',
+    width: 420,
+  }).then(r => { if (r.isConfirmed) window.print(); });
+}
+
+function viewSampleReceipt() {
+  viewReceipt('GTA-2026-4291', 'Kofi Mensah', 'Mole National Park', '₵450', 'Mobile Money', '19 Feb 2026');
+}
+
+// ===== PIN =====
+function movePIN(el, n) {
+  if (el.value.length === 1 && n < 4) document.getElementById('pin' + (n + 1)).focus();
+}
+
+function movePIN2(el, n) {
+  if (el.value.length === 1 && n < 4) document.getElementById('tpin' + (n + 1)).focus();
+}
+
+function savePin() {
+  const pins = ['pin1','pin2','pin3','pin4'].map(id => document.getElementById(id).value);
+  if (pins.some(p => !p)) {
+    Swal.fire({ icon: 'warning', title: 'Incomplete PIN', text: 'Please enter all 4 digits.', background: '#0D1F12', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+    return;
+  }
+  Swal.fire({ icon: 'success', title: 'PIN Saved!', text: 'Your transaction PIN has been set successfully.', background: '#0D1F12', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+  ['pin1','pin2','pin3','pin4'].forEach(id => document.getElementById(id).value = '');
+}
+
+// ===== QR CODE =====
+function initAdminQR() {
+  const el = document.getElementById('admin-qr');
+  if (!el) return;
+  el.innerHTML = '';
+  new QRCode(el, {
+    text: 'GTA-ADMIN-2026-AO|Ghana Tourism Authority Admin Panel|Accra,Ghana|' + Date.now(),
+    width: 150, height: 150,
+    colorDark: '#1A4A2E',
+    colorLight: '#ffffff',
+  });
+}
+
+function refreshQR() {
+  initAdminQR();
+  Swal.fire({ icon: 'success', title: 'QR Code Regenerated', text: 'New QR access code has been generated.', background: '#0D1F12', color: '#F0EDE4', confirmButtonColor: '#C8960C', timer: 2000, showConfirmButton: false });
+}
+
+// ===== ACTIONS =====
+function showNotifications() {
+  Swal.fire({
+    title: '<span style="font-family:Playfair Display,serif;color:#C8960C;">Notifications</span>',
+    html: `
+      <div style="text-align:left;">
+        <div style="padding:10px 0;border-bottom:1px solid #2D2D2D;font-size:13px;"><strong style="color:#E57373;">⚠ Payment Failed</strong><br><span style="color:#aaa;">John Opoku — Tour Permit · ₵300 · 32min ago</span></div>
+        <div style="padding:10px 0;border-bottom:1px solid #2D2D2D;font-size:13px;"><strong style="color:#C8960C;">🕒 Pending Review</strong><br><span style="color:#aaa;">Kwame Asante — Cape Coast Castle · 2hr ago</span></div>
+        <div style="padding:10px 0;font-size:13px;"><strong style="color:#4CAF7D;">✓ Batch Complete</strong><br><span style="color:#aaa;">23 receipts processed today</span></div>
+      </div>
+    `,
+    background: '#142A1A',
+    color: '#F0EDE4',
+    confirmButtonColor: '#C8960C',
+    confirmButtonText: 'Mark All Read',
+  });
+}
+
+function addCustomer() {
+  Swal.fire({
+    title: 'Add New Customer',
+    html: `
+      <div style="display:grid;gap:10px;text-align:left;">
+        <input id="nc-name" class="swal2-input" placeholder="Full Name" style="background:#1C3824;color:#F0EDE4;border:1px solid rgba(200,150,12,0.3);">
+        <input id="nc-email" class="swal2-input" placeholder="Email" style="background:#1C3824;color:#F0EDE4;border:1px solid rgba(200,150,12,0.3);">
+        <input id="nc-phone" class="swal2-input" placeholder="Phone" style="background:#1C3824;color:#F0EDE4;border:1px solid rgba(200,150,12,0.3);">
+      </div>
+    `,
+    background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C',
+    confirmButtonText: 'Add Customer',
+    preConfirm: () => {
+      const name = document.getElementById('nc-name').value;
+      if (!name) return Swal.showValidationMessage('Name is required');
+      return name;
+    }
+  }).then(r => {
+    if (r.isConfirmed) {
+      Swal.fire({ icon: 'success', title: 'Customer Added!', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C', timer: 2000, showConfirmButton: false });
+    }
+  });
+}
+
+function viewCustomerDetail(name) {
+  Swal.fire({ icon: 'info', title: name, text: 'Full customer profile and payment history would load here.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C' });
+}
+
+function exportCSV() {
+  Swal.fire({ icon: 'success', title: 'Export Started', text: 'Your transactions CSV is being downloaded.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C', timer: 2000, showConfirmButton: false });
+}
+
+function generateReport() {
+  Swal.fire({ title: 'Generating Report...', background: '#142A1A', color: '#F0EDE4', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  setTimeout(() => {
+    Swal.fire({ icon: 'success', title: 'Report Ready!', text: 'Your report has been generated and is ready to download.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C', confirmButtonText: '<i class="fas fa-download"></i> Download' });
+  }, 2200);
+}
+
+function saveSettings() {
+  Swal.fire({ icon: 'success', title: 'Settings Saved!', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C', timer: 1800, showConfirmButton: false });
+}
+
+function printReceipt() {
+  window.print();
+}
+
+function emailReceipt() {
+  Swal.fire({ icon: 'success', title: 'Receipt Sent!', text: 'The receipt has been emailed to the customer.', background: '#142A1A', color: '#F0EDE4', confirmButtonColor: '#C8960C', timer: 2000, showConfirmButton: false });
+}
+
+// Close modal on backdrop click
+document.getElementById('paymentModal').addEventListener('click', function(e) {
+  if (e.target === this) closePaymentModal();
+});
+
+// ===== INIT =====
+renderChart();
+renderPayments();
+renderCustomers();
+renderReceipts();
+</script>
+</body>
+</html>
